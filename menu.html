@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nabat Chaikhaneh</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('menu1.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        /* Navbar */
+        .navbar {
+            padding-top: 0.25rem;    /* smaller vertical padding */
+            padding-bottom: 0.25rem;
+        }
+        .navbar-brand { margin-right: 20px; }
+        .navbar-nav .nav-item { margin-right: 20px; }
+
+        /* Menu Section */
+        #menu-section {
+            background-color: #3E5F44;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        #menu-section h2 {
+            color: #E8FFD7;
+            margin-bottom: 40px;
+            font-weight: bold;
+            font-size: 2.5rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .card img {
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .btn-buy {
+            background-color: #7B4019;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 10px 25px;
+            transition: 0.3s;
+        }
+
+        .btn-buy:hover {
+            background-color: #FF7D29;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <img src="logo.png" width="60" height="60" alt="Nabat Logo">
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-between" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-3 me-auto mb-2 mb-lg-0" style="gap: 20px;">
+                <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="showCart()">My Cart 🛒</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Menu
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="filterTea('classic')">Classic Tea</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="filterTea('herbal')">Herbal Tea</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <form class="d-flex" role="search" onsubmit="searchTea(event)">
+                <input class="form-control me-2" type="search" id="searchInput" placeholder="Search tea" aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<section id="menu-section">
+    <div class="container">
+        <h2>Our Tea Selection</h2>
+        <div class="row g-4" id="teaCards"></div>
+    </div>
+</section>
+<footer class="site-footer text-center">
+    <div class="container">
+        <p class="mb-0">&copy; 2025 ahoo-coding. All rights reserved.</p>
+    </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Cart array
+    let cart = [];
+
+    const colors = ['#E8FFD7', '#93DA97', '#FF7D29', '#7B4019', '#FFBF78'];
+    const teaCardsContainer = document.getElementById("teaCards");
+
+    // Define teas
+    const teas = [];
+    const classicTeas = [
+        "Black Tea", "Green Tea", "Oolong Tea", "White Tea", "Darjeeling Tea",
+        "Saffron Tea", "Earl Grey", "Ceylon Tea", "English Breakfast", "Jasmine Tea",
+        "Chamomile Tea", "Lemon Tea", "Mint Tea", "Cardamom Tea", "Ginger Tea",
+        "Masala Chai", "Pu-erh Tea", "Sencha Tea", "Matcha Tea", "Turkish Tea"
+    ];
+    const herbalTeas = [
+        "Peppermint", "Chamomile", "Rosehip", "Hibiscus", "Rooibos",
+        "Lemon Balm", "Lavender", "Ginger", "Echinacea", "Lemongrass",
+        "Thyme", "Sage", "Fennel", "Dandelion", "Nettle",
+        "Valerian", "Passionflower", "Holy Basil", "Licorice Root", "Astragalus"
+    ];
+
+    // Sweets Menu (Kept within 20-100 Afg range)
+    const sweetsMenu = [
+        { name: "Saffron Nabat", price: 50 },
+        { name: "Pistachio Baklava", price: 80 },
+        { name: "Traditional Gaz", price: 100 },
+        { name: "Rosewater Candies", price: 40 },
+        { name: "Dry Fig Halva", price: 75 }
+    ];
+
+    // Array of public web image URLs for Classic Teas (Unchanged)
+    const classicTeaImages = [
+        "https://tealeavz.com/cdn/shop/articles/what-does-black-tea-taste-like.jpg?v=1659743106",
+        "https://www.nfcr.org/wp-content/webp-express/webp-images/uploads/2019/08/Does-Green-Tea-Reduce-the-Risk-of-Cancer_.jpg.webp",
+        "https://teatower.com/cdn/shop/collections/Oolong_Teatower.png?v=1741946101&width=750",
+        "https://twinings.co.uk/cdn/shop/articles/feature_what-is-white-tea_fd38deab-0c68-4312-87f4-1452efa6fa24.jpg?v=1758625940",
+        "https://www.cupoftea.co.uk/images/news/125.jpg",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTKD7LhLnmNvm9d7iEvGzeXoCJE-ELsJDS2A&s",
+        "https://tucsontea.com/cdn/shop/files/SP-earl-grey-1000x1000.jpg?v=1734910209",
+        "https://www.historyofceylontea.com/images/Articles/media-articles/how-do-you-brew-cup-ceylon-tea-1.jpg",
+        "https://www.lifeisbetterwithtea.com/wp-content/uploads/2021/09/English-Breakfast-Tea-with-milk-square.jpeg",
+        "https://images.immediate.co.uk/production/volatile/sites/30/2020/06/Chamomile-tea-in-a-tea-cup-61063da.jpg?quality=90&resize=440,400",
+        "https://cdn.betterme.world/articles/wp-content/uploads/2021/12/shutterstock_217144480.jpg",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNjmDDLU9zLFoxtnIGvtd-JrbRZrLGYVs-2A&s",
+        "http://tealeavz.com/cdn/shop/products/jade-citrus-mint-tea-in-cup.jpg?v=1757881875",
+        "https://www.firebellytea.ca/cdn/shop/articles/a-spicy-cup-of-goodness-how-cardamom-in-tea-boosts- თქვენ-well-being-562073.jpg?v=1737804651",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQiHpzYkd-_xo7rCGDbBWmgY55wJwvqpS_D6Q&s",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSshNTN7cn-ToPkiAQngdsPSFT8ngO5mg95dw&s",
+        "https://static.wixstatic.com/media/e0ebed_76268f3040ba4c5388c6a6cd4e7b2054~mv2_d_4928_3264_s_4_2.jpg/v1/fill/w_568,h_376,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/e0ebed_76268f3040ba4c5388c6a6cd4e7b2054~mv2_d_4928_3264_s_4_2.jpg",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7lBKJghSp_wSniouBc21Y9EfvdXVyb7gcaA&s",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1nU5RIhPxkKAJ9TqpP8uVg69EfnImIC0x8g&s",
+        "https://www.organicfacts.net/wp-content/uploads/azerbaijaniturkishtea-500x500.jpg",
+    ];
+
+    const herbalTeaImages = [
+        "https://www.luxmiestates.in/cdn/shop/articles/peppermint_tea_1084e7c3-92d2-4d8a-92c6-c698f41d2099.jpg?v=1751960773",
+        "https://images.apollo247.in/pd-cms/cms/2025-08/AdobeStock_1535765917_Preview.webp",
+        "https://m.media-amazon.com/images/I/71qF3GhzsaL._UF350,350_QL80_.jpg",
+        "https://eu-images.contentstack.com/v3/assets/blt7b94604c32d7613d/bltfe1dc10e6e787a47/67040188f8caa75f81413eb9/Hibiscus-tea.png",
+        "https://theteahouseonlosrios.com/cdn/shop/collections/Chamomile-900x900_1600x.jpg?v=1723497362",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJq3hni4h4Y4iAvEbyPTh02swLKDG7ZTO1_g&s",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbzS7ZPxzYdhtOPGPj-I4M4I7_drlWxBt-Cg&s",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDelKsqFEPl2b0dwi1nRLWPYpi7w9m0-LtKQ&s",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdJ8VHVmhbvjXFqyKnjjJYJEYYzGVWh1zZOg&s",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSugQpqbcVND1smWgiceyK-Xt-MWQZyrygnWw&s",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTj2cG-fFBNxFcCoDSZ389EgIK4LyH-JaDHHg&s",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6W1xJqlBv1bmy3vVOCBhq21-Zu2jPAbwOuA&s",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4_V8R1jhR7dvmk0CZceN6vjHYErN_VrMvAA&s",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpXXDWjJLyFjoOFetMg3obUsbhGc7MCAFfJg&s",
+        "https://i0.wp.com/tvicr.com/wp-content/uploads/2023/05/NETTLE-DRIED-WITH-HONEY-copy.jpg?fit=1389%2C926&ssl=1",
+        "https://www.organicfacts.net/wp-content/uploads/tulsitea-1-320x240.jpg",
+        "https://images.fineartamerica.com/images/artworkimages/mediumlarge/2/herbal-tea-with-ingredients-lemon-balm-passion-flower-st-johns-wort-hops-lavender-and-orange-flowers-otmar-diez.jpg",
+        "https://gyvatos.com/wp-content/uploads/2024/11/Gyvatos_tulsi-tea.png",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVOAO26OiiJwP0r7093JfpSU3jduPPrTkgnA&s",
+        "https://m.media-amazon.com/images/I/61olDx3ZsJL._UF350,350_QL80_.jpg",
+    ];
+
+
+    // Generate teas
+    for (let i = 0; i < 20; i++) {
+        teas.push({
+            id: i + 1,
+            name: classicTeas[i],
+            type: 'classic',
+            description: `A classic tea: ${classicTeas[i]}`,
+            image: classicTeaImages[i],
+            // UPDATED PRICE LOGIC: 10 to 300 Afg
+            price: Math.floor(Math.random() * 291) + 10 
+        });
+        teas.push({
+            id: i + 21,
+            name: herbalTeas[i],
+            type: 'herbal',
+            description: `A herbal tea: ${herbalTeas[i]}`,
+            image: herbalTeaImages[i],
+            // UPDATED PRICE LOGIC: 10 to 300 Afg
+            price: Math.floor(Math.random() * 291) + 10
+        });
+    }
+
+    // --- Tea Display and Filtering Functions (Unchanged) ---
+    function displayTeas(list) {
+        teaCardsContainer.innerHTML = '';
+        list.forEach((tea, index) => {
+            const color = colors[index % colors.length];
+            const card = document.createElement("div");
+            card.classList.add("col-md-3", "col-sm-6");
+            card.innerHTML = `
+                <div class="card" style="background-color: ${color}">
+                    <img src="${tea.image}" class="card-img-top" alt="${tea.name}">
+                    <div class="card-body">
+                        <h5 class="card-title">${tea.name}</h5>
+                        <p class="card-text">${tea.description}</p>
+                        <p class="card-text"><strong>Price: ${tea.price} Afg</strong></p>
+                        <button class="btn btn-buy" onclick="addToCart(${tea.id})">Buy Now</button>
+                    </div>
+                </div>
+            `;
+            teaCardsContainer.appendChild(card);
+        });
+    }
+
+    displayTeas(teas);
+
+    function filterTea(type) {
+        const filtered = teas.filter(tea => tea.type === type);
+        displayTeas(filtered);
+    }
+
+    function searchTea(event) {
+        event.preventDefault();
+        const query = document.getElementById("searchInput").value.toLowerCase();
+        const filtered = teas.filter(tea => tea.name.toLowerCase().includes(query));
+        displayTeas(filtered);
+    }
+    // --------------------------------------------------------
+
+    // --- addToCart function (Logic Unchanged, now uses new prices) ---
+    function addToCart(id) {
+        const tea = teas.find(t => t.id === id);
+        const cups = prompt(`How many cups of ${tea.name} (Price: ${tea.price} Afg/cup) do you want?`);
+        
+        if (!cups || isNaN(cups) || cups <= 0) {
+            alert("Order cancelled or invalid cup quantity.");
+            return;
+        }
+
+        const numCups = parseInt(cups);
+        let selectedCandies = "None";
+        let candyPrice = 0;
+
+        // 1. Yes/No Candies Prompt
+        const candyChoice = prompt("Do you want candies and sweets with your tea? (Type 'Yes' or 'No')").toLowerCase();
+
+        if (candyChoice === 'yes') {
+            let menuDetails = "Available Sweets:\n\n";
+            sweetsMenu.forEach((item, index) => {
+                menuDetails += `${index + 1}. ${item.name} - ${item.price} Afg\n`;
+            });
+            menuDetails += "\nEnter the NUMBER of the sweet you want:";
+            
+            const sweetIndex = prompt(menuDetails);
+            const index = parseInt(sweetIndex) - 1;
+
+            if (index >= 0 && index < sweetsMenu.length) {
+                const sweet = sweetsMenu[index];
+                selectedCandies = sweet.name;
+                candyPrice = sweet.price;
+            } else {
+                alert("Invalid selection. No sweets added, proceeding with tea only.");
+            }
+        } else if (candyChoice !== 'no') {
+             alert("Invalid choice. No sweets added, proceeding with tea only.");
+        }
+        
+        // 2. Table Number Validation (1-20)
+        let tableNumber = 0;
+        let validTable = false;
+        while (!validTable) {
+            const tableInput = prompt("Please enter your table number (1-20):");
+            const num = parseInt(tableInput);
+            if (num >= 1 && num <= 20) {
+                tableNumber = num;
+                validTable = true;
+            } else if (tableInput === null) {
+                alert("Order cancelled.");
+                return;
+            } else {
+                alert("Invalid table number. Please enter a number between 1 and 20.");
+            }
+        }
+        
+        const totalTeaPrice = numCups * tea.price;
+        const totalItemPrice = totalTeaPrice + candyPrice;
+
+        // Add to cart with full details
+        cart.push({
+            name: tea.name,
+            cups: numCups,
+            teaPrice: tea.price,
+            candies: selectedCandies,
+            candyPrice: candyPrice,
+            table: tableNumber,
+            total: totalItemPrice
+        });
+
+        // 3. Declaration of Price and Success Message
+        alert(`✅ ${tea.name} has been added to your cart for Table #${tableNumber}!\n\nTea Cost: ${totalTeaPrice} Afg\nSweets Cost: ${candyPrice} Afg\nTotal Order Price: ${totalItemPrice} Afg\n\nYour order is now in your cart, enjoy your taste!`);
+    }
+
+    // --- showCart function (Unchanged) ---
+    function showCart() {
+        if (cart.length === 0) {
+            alert("Your cart is empty.");
+            return;
+        }
+
+        let cartDetails = "🛒 Your Cart Summary:\n\n";
+        let grandTotal = 0;
+
+        // Group by Table Number
+        const ordersByTable = cart.reduce((acc, item) => {
+            if (!acc[item.table]) {
+                acc[item.table] = [];
+            }
+            acc[item.table].push(item);
+            return acc;
+        }, {});
+
+        for (const tableNum in ordersByTable) {
+            cartDetails += `--- 🧑‍🤝‍🧑 Table #${tableNum} ---\n`;
+            ordersByTable[tableNum].forEach((item, index) => {
+                grandTotal += item.total;
+                cartDetails += `${index + 1}. ${item.name} (x${item.cups})\n`;
+                cartDetails += `   - Tea Price: ${item.cups} x ${item.teaPrice} Afg = ${item.cups * item.teaPrice} Afg\n`;
+                
+                if (item.candyPrice > 0) {
+                    cartDetails += `   - Sweet: ${item.candies} (+${item.candyPrice} Afg)\n`;
+                } else {
+                    cartDetails += `   - Sweet: ${item.candies}\n`;
+                }
+                cartDetails += `   - Item Subtotal: ${item.total} Afg\n\n`;
+            });
+        }
+        
+        cartDetails += `===============================\n`;
+        cartDetails += `💸 GRAND TOTAL for all tables: ${grandTotal} Afg`;
+        alert(cartDetails);
+    }
+</script>
+</body>
+</html>
